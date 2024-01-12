@@ -20,12 +20,33 @@ const ChatInput: FC<ChatInputProps> = ({ className, ...props }) => {
                 headers:{
                     'Content-Type':'application/json',
                 },
-                body: JSON.stringify({messages:'hello'})
+                body: JSON.stringify({messages:[message]})
             })
+            console.log('response', response.body);
             return response.body
         },
-        onSuccess:() =>{
-            console.log('success');
+        onSuccess: async (stream) => {
+            if (!stream) throw new Error('No stream')
+      
+            // // construct new message to add
+            // const id = nanoid()
+            // const responseMessage: Message = {
+            //   id,
+            //   isUserMessage: false,
+            //   text: '',
+            // }
+
+            const reader = stream.getReader()
+            const decoder = new TextDecoder()
+            let done = false
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        const chunkValue = decoder.decode(value)
+        console.log(chunkValue,'value');
+        // updateMessage(id, (prev) => prev + chunkValue)
+      }
         }
     })
   return (
